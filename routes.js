@@ -1039,12 +1039,13 @@ exports.compileDoc = function(req, res) {
     res.json(response);
     return;
   }
-
+  var folderName = flylatexdir+"/tmpdir";
   var createAndCompile = function(docText) {
-    return function(err, dirPath){
-      var inputPath = path.join(dirPath, documentId+".tex");
+    return function(err){
+        var dirPath = folderName;
+        var inputPath = path.join(dirPath, documentId+".tex");
 
-      var afterCompile = function(err) {
+        var afterCompile = function(err) {
         // store the logs for the user here
         fs.readFile(path.join(dirPath, documentId+".log"), function(err, data){
           if (err) {
@@ -1082,32 +1083,38 @@ exports.compileDoc = function(req, res) {
           });
         });
       };
+      if (err) {
+        response.errors.push("An error occured when creating the compilation folder");
+        res.json(response);
+        return;
+    }else{
+        fs.writeFile(inputPath, docText, function(err) {
+            if (err) {
+              response.errors.push("An error occured even before compiling");
+              res.json(response);
+              return;
+            }
+            process.chdir(dirPath);
 
-      fs.writeFile(inputPath, docText, function(err) {
-        if (err) {
-          response.errors.push("An error occured even before compiling");
-          res.json(response);
-          return;
-        }
-        process.chdir(dirPath);
+            var copyPackages = ["cp -R"
+                                , configs.includes.path
+                                , dirPath + "/"].join(" ");
 
-        var copyPackages = ["cp -R"
-                            , configs.includes.path
-                            , dirPath + "/"].join(" ");
+            exec(copyPackages, function(err) {
+              if (err) {
+                response.errors.push("Error copying additional "
+                                     + "packages/images to use during compilation");
+                res.json(response);
+                return;
+              }
 
-        exec(copyPackages, function(err) {
-          if (err) {
-            response.errors.push("Error copying additional "
-                                 + "packages/images to use during compilation");
-            res.json(response);
-            return;
-          }
-
-          // compile the document (or at least try)
-          exec("pdflatex -interaction=nonstopmode "+ inputPath +" > /dev/null 2>&1"
-               , afterCompile);
+              // compile the document (or at least try)
+              exec("pdflatex -interaction=nonstopmode "+ inputPath +" > /dev/null 2>&1"
+                   , afterCompile);
+            });
         });
-      });
+    }
+
     };
   };
 
@@ -1123,8 +1130,18 @@ exports.compileDoc = function(req, res) {
     // get the document text
     var docText = doc.data;
 
-    // make temporary directory to create and compile latex pdf
-    temp.mkdir("pdfcreator", createAndCompile(docText));
+    // make temporary directory to create and compile latex pdf if it doesn't exists, exec directly if it does
+    fs.stat(folderName, function(err, stats){
+        if (!err && stats.isDirectory()) {
+            console.log("folder " + folderName + " already existing");
+            var compilator = createAndCompile(docText);
+            compilator();
+        }else{
+            console.log("creating folder " + folderName);
+            fs.mkdir(folderName, createAndCompile(docText));
+        }
+    });
+
   });
 };
 
