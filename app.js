@@ -37,7 +37,7 @@ app.configure(function(){
   app.use(express.session({
     secret: secret,
     store: new MongoStore({
-      db: "user-auth"
+      url: configs.db.user_base_url
     })
   }));
   app.use(app.router);
@@ -125,7 +125,7 @@ app.get('/servepdf/:documentId', routes.servePDF);
 
 
 /** end of ROUTES */
-
+console.log("app launched with pID : " + process.pid);
 // open a port for this server
 app.listen((configs.port || process.env.PORT || 3000), function(){
   console.log("Express server listening on port %d in %s mode"
