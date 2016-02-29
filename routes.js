@@ -1109,7 +1109,7 @@ exports.compileDoc = function(req, res) {
               }
 
               // compile the document (or at least try)
-              exec("pdflatex -interaction=nonstopmode "+ inputPath +" > /dev/null 2>&1"
+              exec("TEXINPUTS=.:"+path.join(dirPath,"texpackages")+"/:$TEXINPUTS pdflatex -interaction=nonstopmode "+ inputPath +" > /dev/null 2>&1"
                    , afterCompile);
             });
         });
