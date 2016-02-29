@@ -1,7 +1,7 @@
 // ========================= Put socket.io logic here ==============================
 
 // === CHANGE protocol, hostname, if necessary ===
-var socketIOURI = ["http://", "localhost", ":", socketIOPort].join("");
+var socketIOURI = ["http://", window.location.hostname, ":", socketIOPort].join("");
 var socket = io.connect(socketIOURI);
 
 // handle the changedDocument event
@@ -83,4 +83,3 @@ socket.on("savedDocument", function(messageStr) {
 });
 
 // =================================================================================
-
