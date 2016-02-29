@@ -371,6 +371,7 @@ function DocsManager() {
     jButton.text("Hide PDF View")
       .attr("onclick", "docs_manager.hideCompilerView($(this), '" + documentId + "', '" + documentName + "');");
     $("#editor, #header").css("width", "600px");
+    editor.getSession().setOption("wrap", 60);
     // show compiler view
     $('.compiler-view').slideLeftShow();
     this.compileAndRender(documentId, documentName);
@@ -385,6 +386,7 @@ function DocsManager() {
     jButton.text("Show PDF View")
       .attr("onclick", "docs_manager.showCompilerView($(this), '" + documentId + "', '" + documentName + "');");
     $("#editor, #header").css("width", "1200px");
+    editor.getSession().setOption("wrap", 80);
     // hide compiler view
     $('.compiler-view').slideRightHide();
   };
