@@ -12,12 +12,13 @@ var express = require('express')
 , MongoStore = require('connect-mongo')(express)
 , configs = require('./configs');
 
-
+var morgan = require('morgan');
 
 // Global server Configuration
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
+  app.use(morgan('dev'));//log des requetes
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(express.cookieParser());
