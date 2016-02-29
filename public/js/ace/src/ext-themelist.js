@@ -1,4 +1,4 @@
-ace.define("ace/ext/themelist",["require","exports","module","ace/lib/fixoldbrowsers"], function(require, exports, module) {
+define("ace/ext/themelist",["require","exports","module","ace/lib/fixoldbrowsers"], function(require, exports, module) {
 "use strict";
 require("ace/lib/fixoldbrowsers");
 
@@ -10,14 +10,12 @@ var themeData = [
     ["Dreamweaver"    ],
     ["Eclipse"        ],
     ["GitHub"         ],
-    ["IPlastic"       ],
     ["Solarized Light"],
     ["TextMate"       ],
     ["Tomorrow"       ],
     ["XCode"          ],
     ["Kuroir"],
     ["KatzenMilch"],
-    ["SQL Server"           ,"sqlserver"               , "light"],
     ["Ambiance"             ,"ambiance"                ,  "dark"],
     ["Chaos"                ,"chaos"                   ,  "dark"],
     ["Clouds Midnight"      ,"clouds_midnight"         ,  "dark"],
@@ -55,6 +53,6 @@ exports.themes = themeData.map(function(data) {
 
 });
                 (function() {
-                    ace.require(["ace/ext/themelist"], function() {});
+                    window.require(["ace/ext/themelist"], function() {});
                 })();
             

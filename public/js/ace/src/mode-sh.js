@@ -1,4 +1,4 @@
-ace.define("ace/mode/sh_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+define("ace/mode/sh_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -8,7 +8,7 @@ var reservedKeywords = exports.reservedKeywords = (
         '!|{|}|case|do|done|elif|else|'+
         'esac|fi|for|if|in|then|until|while|'+
         '&|;|export|local|read|typeset|unset|'+
-        'elif|select|set|function|declare|readonly'
+        'elif|select|set'
     );
 
 var languageConstructs = exports.languageConstructs = (
@@ -39,7 +39,7 @@ var ShHighlightRules = function() {
     var fileDescriptor = "(?:&" + intPart + ")";
 
     var variableName = "[a-zA-Z_][a-zA-Z0-9_]*";
-    var variable = "(?:" + variableName + "=)";
+    var variable = "(?:(?:\\$" + variableName + ")|(?:" + variableName + "=))";
 
     var builtinVariable = "(?:\\$(?:SHLVL|\\$|\\!|\\?))";
 
@@ -57,28 +57,13 @@ var ShHighlightRules = function() {
             regex : '"',
             push : [{
                 token : "constant.language.escape",
-                regex : /\\(?:[$`"\\]|$)/
+                regex : /\\(?:[$abeEfnrtv\\'"]|x[a-fA-F\d]{1,2}|u[a-fA-F\d]{4}([a-fA-F\d]{4})?|c.|\d{1,3})/
             }, {
-                include : "variables"
-            }, {
-                token : "keyword.operator",
-                regex : /`/ // TODO highlight `
+                token : "constant",
+                regex : /\$\w+/
             }, {
                 token : "string",
                 regex : '"',
-                next: "pop"
-            }, {
-                defaultToken: "string"
-            }]
-        }, {
-            token : "string",
-            regex : "\\$'",
-            push : [{
-                token : "constant.language.escape",
-                regex : /\\(?:[abeEfnrtv\\'"]|x[a-fA-F\d]{1,2}|u[a-fA-F\d]{4}([a-fA-F\d]{4})?|c.|\d{1,3})/
-            }, {
-                token : "string",
-                regex : "'",
                 next: "pop"
             }, {
                 defaultToken: "string"
@@ -143,16 +128,11 @@ var ShHighlightRules = function() {
                 return currentState;
             }
         }, {
-            token : ["keyword", "text", "text", "text", "variable"],
-            regex : /(declare|local|readonly)(\s+)(?:(-[fixar]+)(\s+))?([a-zA-Z_][a-zA-Z0-9_]*\b)/
-        }, {
             token : "variable.language",
             regex : builtinVariable
         }, {
             token : "variable",
             regex : variable
-        }, {
-            include : "variables"
         }, {
             token : "support.function",
             regex : func
@@ -173,40 +153,14 @@ var ShHighlightRules = function() {
             regex : "[a-zA-Z_][a-zA-Z0-9_]*\\b"
         }, {
             token : "keyword.operator",
-            regex : "\\+|\\-|\\*|\\*\\*|\\/|\\/\\/|~|<|>|<=|=>|=|!=|[%&|`]"
-        }, {
-            token : "punctuation.operator",
-            regex : ";"
+            regex : "\\+|\\-|\\*|\\*\\*|\\/|\\/\\/|~|<|>|<=|=>|=|!="
         }, {
             token : "paren.lparen",
             regex : "[\\[\\(\\{]"
         }, {
             token : "paren.rparen",
-            regex : "[\\]]"
-        }, {
-            token : "paren.rparen",
-            regex : "[\\)\\}]",
-            next : "pop"
-        }],
-        variables: [{
-            token : "variable",
-            regex : /(\$)(\w+)/
-        }, {
-            token : ["variable", "paren.lparen"],
-            regex : /(\$)(\()/,
-            push : "start"
-        }, {
-            token : ["variable", "paren.lparen", "keyword.operator", "variable", "keyword.operator"],
-            regex : /(\$)(\{)([#!]?)(\w+|[*@#?\-$!0_])(:[?+\-=]?|##?|%%?|,,?\/|\^\^?)?/,
-            push : "start"
-        }, {
-            token : "variable",
-            regex : /\$[*@#?\-$!0_]/
-        }, {
-            token : ["variable", "paren.lparen"],
-            regex : /(\$)(\{)/,
-            push : "start"
-        }]
+            regex : "[\\]\\)\\}]"
+        } ]
     };
     
     this.normalizeRules();
@@ -217,7 +171,7 @@ oop.inherits(ShHighlightRules, TextHighlightRules);
 exports.ShHighlightRules = ShHighlightRules;
 });
 
-ace.define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
+define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -242,7 +196,7 @@ oop.inherits(FoldMode, BaseFoldMode);
     this.foldingStopMarker = /^[^\[\{]*(\}|\])|^[\s\*]*(\*\/)/;
     this.singleLineBlockCommentRe= /^\s*(\/\*).*\*\/\s*$/;
     this.tripleStarBlockCommentRe = /^\s*(\/\*\*\*).*\*\/\s*$/;
-    this.startRegionRe = /^\s*(\/\*|\/\/)#?region\b/;
+    this.startRegionRe = /^\s*(\/\*|\/\/)#region\b/;
     this._getFoldWidgetBase = this.getFoldWidget;
     this.getFoldWidget = function(session, foldStyle, row) {
         var line = session.getLine(row);
@@ -330,12 +284,13 @@ oop.inherits(FoldMode, BaseFoldMode);
         
         return new Range(startRow, startColumn, endRow, session.getLine(endRow).length);
     };
+    
     this.getCommentRegionBlock = function(session, line, row) {
         var startColumn = line.search(/\s*$/);
         var maxRow = session.getLength();
         var startRow = row;
         
-        var re = /^\s*(?:\/\*|\/\/|--)#?(end)?region\b/;
+        var re = /^\s*(?:\/\*|\/\/)#(end)?region\b/;
         var depth = 1;
         while (++row < maxRow) {
             line = session.getLine(row);
@@ -357,7 +312,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-ace.define("ace/mode/behaviour/cstyle",["require","exports","module","ace/lib/oop","ace/mode/behaviour","ace/token_iterator","ace/lib/lang"], function(require, exports, module) {
+define("ace/mode/behaviour/cstyle",["require","exports","module","ace/lib/oop","ace/mode/behaviour","ace/token_iterator","ace/lib/lang"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -597,8 +552,8 @@ var CstyleBehaviour = function() {
                 if (leftChar == "\\" && token && /escape/.test(token.type))
                     return null;
                 
-                var stringBefore = token && /string|escape/.test(token.type);
-                var stringAfter = !rightToken || /string|escape/.test(rightToken.type);
+                var stringBefore = token && /string/.test(token.type);
+                var stringAfter = !rightToken || /string/.test(rightToken.type);
                 
                 var pair;
                 if (rightChar == quote) {
@@ -714,7 +669,7 @@ oop.inherits(CstyleBehaviour, Behaviour);
 exports.CstyleBehaviour = CstyleBehaviour;
 });
 
-ace.define("ace/mode/sh",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/sh_highlight_rules","ace/range","ace/mode/folding/cstyle","ace/mode/behaviour/cstyle"], function(require, exports, module) {
+define("ace/mode/sh",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/sh_highlight_rules","ace/range","ace/mode/folding/cstyle","ace/mode/behaviour/cstyle"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");

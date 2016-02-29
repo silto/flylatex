@@ -1,4 +1,4 @@
-ace.define("ace/theme/clouds_midnight",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+define("ace/theme/clouds_midnight",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
 
 exports.isDark = true;
 exports.cssClass = "ace-clouds-midnight";
@@ -22,6 +22,7 @@ background: #000000\
 }\
 .ace-clouds-midnight.ace_multiselect .ace_selection.ace_start {\
 box-shadow: 0 0 3px 0px #191919;\
+border-radius: 2px\
 }\
 .ace-clouds-midnight .ace_marker-layer .ace_step {\
 background: rgb(102, 82, 0)\

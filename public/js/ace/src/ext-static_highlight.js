@@ -1,4 +1,4 @@
-ace.define("ace/ext/static_highlight",["require","exports","module","ace/edit_session","ace/layer/text","ace/config","ace/lib/dom"], function(require, exports, module) {
+define("ace/ext/static_highlight",["require","exports","module","ace/edit_session","ace/layer/text","ace/config","ace/lib/dom"], function(require, exports, module) {
 "use strict";
 
 var EditSession = require("../edit_session").EditSession;
@@ -39,10 +39,6 @@ counter-reset: ace_line;\
 var config = require("../config");
 var dom = require("../lib/dom");
 
-var SimpleTextLayer = function() {
-    this.config = {};
-};
-SimpleTextLayer.prototype = TextLayer.prototype;
 
 var highlight = function(el, opts, callback) {
     var m = el.className.match(/lang-(\w+)/);
@@ -121,8 +117,12 @@ highlight.renderSync = function(input, mode, theme, lineStart, disableGutter) {
     session.setUseWorker(false);
     session.setMode(mode);
 
-    var textLayer = new SimpleTextLayer();
+    var textLayer = new TextLayer(document.createElement("div"));
     textLayer.setSession(session);
+    textLayer.config = {
+        characterWidth: 10,
+        lineHeight: 20
+    };
 
     session.setValue(input);
 
@@ -156,6 +156,6 @@ module.exports = highlight;
 module.exports.highlight =highlight;
 });
                 (function() {
-                    ace.require(["ace/ext/static_highlight"], function() {});
+                    window.require(["ace/ext/static_highlight"], function() {});
                 })();
             

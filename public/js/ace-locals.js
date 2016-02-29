@@ -10,7 +10,7 @@ editor.getSession().setOption("wrap", 80);
 
 
 // use latex mode
-var LatexMode = ace.require("ace/mode/latex").Mode;
+var LatexMode = require("ace/mode/latex").Mode;
 editor.getSession().setMode(new LatexMode());
 
 // use idle_fingers theme

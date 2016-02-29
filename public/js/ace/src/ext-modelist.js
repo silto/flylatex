@@ -1,4 +1,4 @@
-ace.define("ace/ext/modelist",["require","exports","module"], function(require, exports, module) {
+define("ace/ext/modelist",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 var modes = [];
@@ -19,13 +19,12 @@ var Mode = function(name, caption, extensions) {
     this.caption = caption;
     this.mode = "ace/mode/" + name;
     this.extensions = extensions;
-    var re;
     if (/\^/.test(extensions)) {
-        re = extensions.replace(/\|(\^)?/g, function(a, b){
+        var re = extensions.replace(/\|(\^)?/g, function(a, b){
             return "$|" + (b ? "^" : "^.*\\.");
         }) + "$";
     } else {
-        re = "^.*\\.(" + extensions + ")$";
+        var re = "^.*\\.(" + extensions + ")$";
     }
 
     this.extRe = new RegExp(re, "gi");
@@ -41,11 +40,11 @@ var supportedModes = {
     ADA:         ["ada|adb"],
     Apache_Conf: ["^htaccess|^htgroups|^htpasswd|^conf|htaccess|htgroups|htpasswd"],
     AsciiDoc:    ["asciidoc|adoc"],
-    Assembly_x86:["asm|a"],
+    Assembly_x86:["asm"],
     AutoHotKey:  ["ahk"],
     BatchFile:   ["bat|cmd"],
-    C_Cpp:       ["cpp|c|cc|cxx|h|hh|hpp|ino"],
     C9Search:    ["c9search_results"],
+    C_Cpp:       ["cpp|c|cc|cxx|h|hh|hpp"],
     Cirru:       ["cirru|cr"],
     Clojure:     ["clj|cljs"],
     Cobol:       ["CBL|COB"],
@@ -61,19 +60,17 @@ var supportedModes = {
     Dot:         ["dot"],
     Dummy:       ["dummy"],
     DummySyntax: ["dummy"],
-    Eiffel:      ["e|ge"],
+    Eiffel:      ["e"],
     EJS:         ["ejs"],
     Elixir:      ["ex|exs"],
     Elm:         ["elm"],
     Erlang:      ["erl|hrl"],
     Forth:       ["frt|fs|ldr"],
-    Fortran:     ["f|f90"],
     FTL:         ["ftl"],
     Gcode:       ["gcode"],
     Gherkin:     ["feature"],
     Gitignore:   ["^.gitignore"],
     Glsl:        ["glsl|frag|vert"],
-    Gobstones:   ["gbs"], 
     golang:      ["go"],
     Groovy:      ["groovy"],
     HAML:        ["haml"],
@@ -81,14 +78,13 @@ var supportedModes = {
     Haskell:     ["hs"],
     haXe:        ["hx"],
     HTML:        ["html|htm|xhtml"],
-    HTML_Elixir: ["eex|html.eex"],
     HTML_Ruby:   ["erb|rhtml|html.erb"],
     INI:         ["ini|conf|cfg|prefs"],
     Io:          ["io"],
     Jack:        ["jack"],
     Jade:        ["jade"],
     Java:        ["java"],
-    JavaScript:  ["js|jsm|jsx"],
+    JavaScript:  ["js|jsm"],
     JSON:        ["json"],
     JSONiq:      ["jq"],
     JSP:         ["jsp"],
@@ -109,18 +105,16 @@ var supportedModes = {
     Markdown:    ["md|markdown"],
     Mask:        ["mask"],
     MATLAB:      ["matlab"],
-    Maze:        ["mz"],
     MEL:         ["mel"],
     MUSHCode:    ["mc|mush"],
     MySQL:       ["mysql"],
     Nix:         ["nix"],
-    NSIS:        ["nsi|nsh"],
     ObjectiveC:  ["m|mm"],
     OCaml:       ["ml|mli"],
     Pascal:      ["pas|p"],
     Perl:        ["pl|pm"],
     pgSQL:       ["pgsql"],
-    PHP:         ["php|phtml|shtml|php3|php4|php5|phps|phpt|aw|ctp|module"],
+    PHP:         ["php|phtml"],
     Powershell:  ["ps1"],
     Praat:       ["praat|praatscript|psc|proc"],
     Prolog:      ["plg|prolog"],
@@ -128,16 +122,14 @@ var supportedModes = {
     Protobuf:    ["proto"],
     Python:      ["py"],
     R:           ["r"],
-    Razor:       ["cshtml"],
     RDoc:        ["Rd"],
     RHTML:       ["Rhtml"],
-    RST:         ["rst"],
     Ruby:        ["rb|ru|gemspec|rake|^Guardfile|^Rakefile|^Gemfile"],
     Rust:        ["rs"],
     SASS:        ["sass"],
     SCAD:        ["scad"],
     Scala:       ["scala"],
-    Scheme:      ["scm|sm|rkt|oak|scheme"],
+    Scheme:      ["scm|rkt"],
     SCSS:        ["scss"],
     SH:          ["sh|bash|^.bashrc"],
     SJS:         ["sjs"],
@@ -146,23 +138,20 @@ var supportedModes = {
     Soy_Template:["soy"],
     Space:       ["space"],
     SQL:         ["sql"],
-    SQLServer:   ["sqlserver"],
     Stylus:      ["styl|stylus"],
     SVG:         ["svg"],
-    Swift:       ["swift"],
     Tcl:         ["tcl"],
     Tex:         ["tex"],
     Text:        ["txt"],
     Textile:     ["textile"],
     Toml:        ["toml"],
-    Twig:        ["twig|swig"],
+    Twig:        ["twig"],
     Typescript:  ["ts|typescript|str"],
     Vala:        ["vala"],
     VBScript:    ["vbs|vb"],
     Velocity:    ["vm"],
     Verilog:     ["v|vh|sv|svh"],
     VHDL:        ["vhd|vhdl"],
-    Wollok:      ["wlk|wpgm|wtest"],
     XML:         ["xml|rdf|rss|wsdl|xslt|atom|mathml|mml|xul|xbl|xaml"],
     XQuery:      ["xq"],
     YAML:        ["yaml|yml"],
@@ -176,7 +165,6 @@ var nameOverrides = {
     C_Cpp: "C and C++",
     coffee: "CoffeeScript",
     HTML_Ruby: "HTML (Ruby)",
-    HTML_Elixir: "HTML (Elixir)",
     FTL: "FreeMarker"
 };
 var modesByName = {};
@@ -197,6 +185,6 @@ module.exports = {
 
 });
                 (function() {
-                    ace.require(["ace/ext/modelist"], function() {});
+                    window.require(["ace/ext/modelist"], function() {});
                 })();
             

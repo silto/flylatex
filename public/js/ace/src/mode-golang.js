@@ -1,4 +1,4 @@
-ace.define("ace/mode/doc_comment_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+define("ace/mode/doc_comment_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -48,7 +48,7 @@ exports.DocCommentHighlightRules = DocCommentHighlightRules;
 
 });
 
-ace.define("ace/mode/golang_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/doc_comment_highlight_rules","ace/mode/text_highlight_rules"], function(require, exports, module) {
+define("ace/mode/golang_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/doc_comment_highlight_rules","ace/mode/text_highlight_rules"], function(require, exports, module) {
     var oop = require("../lib/oop");
     var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
     var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
@@ -65,7 +65,7 @@ ace.define("ace/mode/golang_highlight_rules",["require","exports","module","ace/
             "float64|complex64|complex128|byte|rune|uint|int|uintptr|bool|error"
         );
         var builtinFunctions = (
-            "new|close|cap|copy|panic|panicln|print|println|len|make|delete|real|recover|imag|append"
+            "make|close|new|panic|recover"
         );
         var builtinConstants = ("nil|true|false|iota");
 
@@ -74,9 +74,7 @@ ace.define("ace/mode/golang_highlight_rules",["require","exports","module","ace/
             "constant.language": builtinConstants,
             "support.function": builtinFunctions,
             "support.type": builtinTypes
-        }, "");
-        
-        var stringEscapeRe = "\\\\(?:[0-7]{3}|x\\h{2}|u{4}|U\\h{6}|[abfnrtv'\"\\\\])".replace(/\\h/g, "[a-fA-F\\d]");
+        }, "identifier");
 
         this.$rules = {
             "start" : [
@@ -86,43 +84,32 @@ ace.define("ace/mode/golang_highlight_rules",["require","exports","module","ace/
                 },
                 DocCommentHighlightRules.getStartRule("doc-start"),
                 {
-                    token : "comment.start", // multi line comment
+                    token : "comment", // multi line comment
                     regex : "\\/\\*",
                     next : "comment"
                 }, {
                     token : "string", // single line
-                    regex : /"(?:[^"\\]|\\.)*?"/
+                    regex : '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
                 }, {
-                    token : "string", // raw
-                    regex : '`',
+                    token : "string", // single line
+                    regex : '[`](?:[^`]*)[`]'
+                }, {
+                    token : "string", // multi line string start
+                    merge : true,
+                    regex : '[`](?:[^`]*)$',
                     next : "bqstring"
                 }, {
                     token : "constant.numeric", // rune
-                    regex : "'(?:[^\\'\uD800-\uDBFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|" + stringEscapeRe.replace('"', '')  + ")'"
+                    regex : "['](?:(?:\\\\.)|(?:[^'\\\\]))[']"
                 }, {
                     token : "constant.numeric", // hex
-                    regex : "0[xX][0-9a-fA-F]+\\b" 
+                    regex : "0[xX][0-9a-fA-F]+\\b"
                 }, {
                     token : "constant.numeric", // float
                     regex : "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
                 }, {
-                    token : ["keyword", "text", "entity.name.function"],
-                    regex : "(func)(\\s+)([a-zA-Z_$][a-zA-Z0-9_$]*)\\b"
-                }, {
-                    token : function(val) {
-                        if (val[val.length - 1] == "(") {
-                            return [{
-                                type: keywordMapper(val.slice(0, -1)) || "support.function",
-                                value: val.slice(0, -1)
-                            }, {
-                                type: "paren.lparen",
-                                value: val.slice(-1)
-                            }];
-                        }
-                        
-                        return keywordMapper(val) || "identifier";
-                    },
-                    regex : "[a-zA-Z_$][a-zA-Z0-9_$]*\\b\\(?"
+                    token : keywordMapper,
+                    regex : "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
                 }, {
                     token : "keyword.operator",
                     regex : "!|\\$|%|&|\\*|\\-\\-|\\-|\\+\\+|\\+|~|==|=|!=|<=|>=|<<=|>>=|>>>=|<>|<|>|!|&&|\\|\\||\\?\\:|\\*=|%=|\\+=|\\-=|&=|\\^="
@@ -142,20 +129,22 @@ ace.define("ace/mode/golang_highlight_rules",["require","exports","module","ace/
             ],
             "comment" : [
                 {
-                    token : "comment.end",
-                    regex : "\\*\\/",
+                    token : "comment", // closing comment
+                    regex : ".*?\\*\\/",
                     next : "start"
                 }, {
-                    defaultToken : "comment"
+                    token : "comment", // comment spanning whole line
+                    regex : ".+"
                 }
             ],
             "bqstring" : [
                 {
                     token : "string",
-                    regex : '`',
+                    regex : '(?:[^`]*)`',
                     next : "start"
                 }, {
-                    defaultToken : "string"
+                    token : "string",
+                    regex : '.+'
                 }
             ]
         };
@@ -168,7 +157,7 @@ ace.define("ace/mode/golang_highlight_rules",["require","exports","module","ace/
     exports.GolangHighlightRules = GolangHighlightRules;
 });
 
-ace.define("ace/mode/matching_brace_outdent",["require","exports","module","ace/range"], function(require, exports, module) {
+define("ace/mode/matching_brace_outdent",["require","exports","module","ace/range"], function(require, exports, module) {
 "use strict";
 
 var Range = require("../range").Range;
@@ -208,7 +197,7 @@ var MatchingBraceOutdent = function() {};
 exports.MatchingBraceOutdent = MatchingBraceOutdent;
 });
 
-ace.define("ace/mode/behaviour/cstyle",["require","exports","module","ace/lib/oop","ace/mode/behaviour","ace/token_iterator","ace/lib/lang"], function(require, exports, module) {
+define("ace/mode/behaviour/cstyle",["require","exports","module","ace/lib/oop","ace/mode/behaviour","ace/token_iterator","ace/lib/lang"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -448,8 +437,8 @@ var CstyleBehaviour = function() {
                 if (leftChar == "\\" && token && /escape/.test(token.type))
                     return null;
                 
-                var stringBefore = token && /string|escape/.test(token.type);
-                var stringAfter = !rightToken || /string|escape/.test(rightToken.type);
+                var stringBefore = token && /string/.test(token.type);
+                var stringAfter = !rightToken || /string/.test(rightToken.type);
                 
                 var pair;
                 if (rightChar == quote) {
@@ -565,7 +554,7 @@ oop.inherits(CstyleBehaviour, Behaviour);
 exports.CstyleBehaviour = CstyleBehaviour;
 });
 
-ace.define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
+define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -590,7 +579,7 @@ oop.inherits(FoldMode, BaseFoldMode);
     this.foldingStopMarker = /^[^\[\{]*(\}|\])|^[\s\*]*(\*\/)/;
     this.singleLineBlockCommentRe= /^\s*(\/\*).*\*\/\s*$/;
     this.tripleStarBlockCommentRe = /^\s*(\/\*\*\*).*\*\/\s*$/;
-    this.startRegionRe = /^\s*(\/\*|\/\/)#?region\b/;
+    this.startRegionRe = /^\s*(\/\*|\/\/)#region\b/;
     this._getFoldWidgetBase = this.getFoldWidget;
     this.getFoldWidget = function(session, foldStyle, row) {
         var line = session.getLine(row);
@@ -678,12 +667,13 @@ oop.inherits(FoldMode, BaseFoldMode);
         
         return new Range(startRow, startColumn, endRow, session.getLine(endRow).length);
     };
+    
     this.getCommentRegionBlock = function(session, line, row) {
         var startColumn = line.search(/\s*$/);
         var maxRow = session.getLength();
         var startRow = row;
         
-        var re = /^\s*(?:\/\*|\/\/|--)#?(end)?region\b/;
+        var re = /^\s*(?:\/\*|\/\/)#(end)?region\b/;
         var depth = 1;
         while (++row < maxRow) {
             line = session.getLine(row);
@@ -705,7 +695,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-ace.define("ace/mode/golang",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/golang_highlight_rules","ace/mode/matching_brace_outdent","ace/mode/behaviour/cstyle","ace/mode/folding/cstyle"], function(require, exports, module) {
+define("ace/mode/golang",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/golang_highlight_rules","ace/mode/matching_brace_outdent","ace/mode/behaviour/cstyle","ace/mode/folding/cstyle"], function(require, exports, module) {
 
 var oop = require("../lib/oop");
 var TextMode = require("./text").Mode;
@@ -718,7 +708,6 @@ var Mode = function() {
     this.HighlightRules = GolangHighlightRules;
     this.$outdent = new MatchingBraceOutdent();
     this.foldingRules = new CStyleFoldMode();
-    this.$behaviour = new CstyleBehaviour();
 };
 oop.inherits(Mode, TextMode);
 

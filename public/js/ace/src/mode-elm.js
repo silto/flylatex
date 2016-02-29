@@ -1,4 +1,4 @@
-ace.define("ace/mode/elm_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+define("ace/mode/elm_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -28,9 +28,6 @@ var ElmHighlightRules = function() {
         }, {
             regex: /0(?:[xX][0-9A-Fa-f]+|[oO][0-7]+)|\d+(\.\d+)?([eE][-+]?\d*)?/,
             token: "constant.numeric"
-        }, {
-            token: "comment",
-            regex: "--.*"
         }, {
             token : "keyword",
             regex : /\.\.|\||:|=|\\|\"|->|<-|\u2192/
@@ -72,7 +69,7 @@ var ElmHighlightRules = function() {
         }, {
             token: "paren.rparen",
             regex: /[\])}]/
-        } ],
+        }, ],
         markdown: [{
             regex: /\|\]/,
             next: "start"
@@ -103,7 +100,7 @@ var ElmHighlightRules = function() {
         }],
         string: [{
             token: "constant.language.escape",
-            regex: escapeRe
+            regex: escapeRe,
         }, {
             token: "text",
             regex: /\\(\s|$)/,
@@ -121,7 +118,7 @@ var ElmHighlightRules = function() {
             token: "error",
             regex: "",
             next: "start"
-        }]
+        }],
     };
     
     this.normalizeRules();
@@ -132,7 +129,7 @@ oop.inherits(ElmHighlightRules, TextHighlightRules);
 exports.ElmHighlightRules = ElmHighlightRules;
 });
 
-ace.define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
+define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -157,7 +154,7 @@ oop.inherits(FoldMode, BaseFoldMode);
     this.foldingStopMarker = /^[^\[\{]*(\}|\])|^[\s\*]*(\*\/)/;
     this.singleLineBlockCommentRe= /^\s*(\/\*).*\*\/\s*$/;
     this.tripleStarBlockCommentRe = /^\s*(\/\*\*\*).*\*\/\s*$/;
-    this.startRegionRe = /^\s*(\/\*|\/\/)#?region\b/;
+    this.startRegionRe = /^\s*(\/\*|\/\/)#region\b/;
     this._getFoldWidgetBase = this.getFoldWidget;
     this.getFoldWidget = function(session, foldStyle, row) {
         var line = session.getLine(row);
@@ -245,12 +242,13 @@ oop.inherits(FoldMode, BaseFoldMode);
         
         return new Range(startRow, startColumn, endRow, session.getLine(endRow).length);
     };
+    
     this.getCommentRegionBlock = function(session, line, row) {
         var startColumn = line.search(/\s*$/);
         var maxRow = session.getLength();
         var startRow = row;
         
-        var re = /^\s*(?:\/\*|\/\/|--)#?(end)?region\b/;
+        var re = /^\s*(?:\/\*|\/\/)#(end)?region\b/;
         var depth = 1;
         while (++row < maxRow) {
             line = session.getLine(row);
@@ -272,7 +270,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-ace.define("ace/mode/elm",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/elm_highlight_rules","ace/mode/folding/cstyle"], function(require, exports, module) {
+define("ace/mode/elm",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/elm_highlight_rules","ace/mode/folding/cstyle"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -288,7 +286,7 @@ oop.inherits(Mode, TextMode);
 
 (function() {
     this.lineCommentStart = "--";
-    this.blockComment = {start: "{-", end: "-}", nestable: true};
+    this.blockComment = {start: "{-", end: "-}"};
     this.$id = "ace/mode/elm";
 }).call(Mode.prototype);
 

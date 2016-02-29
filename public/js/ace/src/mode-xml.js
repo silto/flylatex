@@ -1,11 +1,12 @@
-ace.define("ace/mode/xml_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+define("ace/mode/xml_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
 var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 
 var XmlHighlightRules = function(normalize) {
-    var tagRegex = "[_:a-zA-Z\xc0-\uffff][-_:.a-zA-Z0-9\xc0-\uffff]*";
+
+    var tagRegex = "[a-zA-Z][-_a-zA-Z0-9]*";
 
     this.$rules = {
         start : [
@@ -16,7 +17,7 @@ var XmlHighlightRules = function(normalize) {
             },
             {
                 token : ["punctuation.instruction.xml", "keyword.instruction.xml"],
-                regex : "(<\\?)(" + tagRegex + ")", next : "processing_instruction"
+                regex : "(<\\?)(" + tagRegex + ")", next : "processing_instruction",
             },
             {token : "comment.xml", regex : "<\\!--", next : "comment"},
             {
@@ -210,7 +211,7 @@ oop.inherits(XmlHighlightRules, TextHighlightRules);
 exports.XmlHighlightRules = XmlHighlightRules;
 });
 
-ace.define("ace/mode/behaviour/xml",["require","exports","module","ace/lib/oop","ace/mode/behaviour","ace/token_iterator","ace/lib/lang"], function(require, exports, module) {
+define("ace/mode/behaviour/xml",["require","exports","module","ace/lib/oop","ace/mode/behaviour","ace/token_iterator","ace/lib/lang"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -373,7 +374,7 @@ oop.inherits(XmlBehaviour, Behaviour);
 exports.XmlBehaviour = XmlBehaviour;
 });
 
-ace.define("ace/mode/folding/xml",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/range","ace/mode/folding/fold_mode","ace/token_iterator"], function(require, exports, module) {
+define("ace/mode/folding/xml",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/range","ace/mode/folding/fold_mode","ace/token_iterator"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -614,7 +615,7 @@ function is(token, type) {
 
 });
 
-ace.define("ace/mode/xml",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/text","ace/mode/xml_highlight_rules","ace/mode/behaviour/xml","ace/mode/folding/xml","ace/worker/worker_client"], function(require, exports, module) {
+define("ace/mode/xml",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/text","ace/mode/xml_highlight_rules","ace/mode/behaviour/xml","ace/mode/folding/xml","ace/worker/worker_client"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -639,7 +640,7 @@ oop.inherits(Mode, TextMode);
 
     this.blockComment = {start: "<!--", end: "-->"};
 
-    this.createWorker = function(session) {
+     this.createWorker = function(session) {
         var worker = new WorkerClient(["ace"], "ace/mode/xml_worker", "Worker");
         worker.attachToDocument(session.getDocument());
 

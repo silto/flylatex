@@ -1,4 +1,4 @@
-ace.define("ace/mode/lua_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+define("ace/mode/lua_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -40,14 +40,17 @@ var LuaHighlightRules = function() {
 
     var stdLibaries = ("string|package|os|io|math|debug|table|coroutine");
 
+    var futureReserved = "";
+
     var deprecatedIn5152 = ("setn|foreach|foreachi|gcinfo|log10|maxn");
 
     var keywordMapper = this.createKeywordMapper({
         "keyword": keywords,
         "support.function": functions,
-        "keyword.deprecated": deprecatedIn5152,
+        "invalid.deprecated": deprecatedIn5152,
         "constant.library": stdLibaries,
         "constant.language": builtinConstants,
+        "invalid.illegal": futureReserved,
         "variable.language": "self"
     }, "identifier");
 
@@ -157,7 +160,7 @@ oop.inherits(LuaHighlightRules, TextHighlightRules);
 exports.LuaHighlightRules = LuaHighlightRules;
 });
 
-ace.define("ace/mode/folding/lua",["require","exports","module","ace/lib/oop","ace/mode/folding/fold_mode","ace/range","ace/token_iterator"], function(require, exports, module) {
+define("ace/mode/folding/lua",["require","exports","module","ace/lib/oop","ace/mode/folding/fold_mode","ace/range","ace/token_iterator"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../../lib/oop");
@@ -291,7 +294,7 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-ace.define("ace/mode/lua",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/lua_highlight_rules","ace/mode/folding/lua","ace/range","ace/worker/worker_client"], function(require, exports, module) {
+define("ace/mode/lua",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/lua_highlight_rules","ace/mode/folding/lua","ace/range","ace/worker/worker_client"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
@@ -339,9 +342,9 @@ oop.inherits(Mode, TextMode);
                     level += indentKeywords[token.value];
                 }
             } else if (token.type == "paren.lparen") {
-                level += token.value.length;
+                level ++;
             } else if (token.type == "paren.rparen") {
-                level -= token.value.length;
+                level --;
             }
         }
         if (level < 0) {
