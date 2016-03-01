@@ -13,6 +13,7 @@ var mongoose = require("mongoose")
 , util = require("util")
 , path = require("path")
 , exec = require("child_process").exec
+, psTree = require("ps-tree")
 , http = require("http")
 
 // flylatex directory
@@ -1044,76 +1045,124 @@ exports.compileDoc = function(req, res) {
     return function(err){
         var dirPath = folderName;
         var inputPath = path.join(dirPath, documentId+".tex");
-
+        var timeoutVar = null;
         var afterCompile = function(err) {
-        // store the logs for the user here
-        fs.readFile(path.join(dirPath, documentId+".log"), function(err, data){
-          if (err) {
-            response.errors.push("Error while trying to read logs.");
-            res.json(response);
-            return;
-          }
-
-          response.logs = (data ? data.toString() : "");
-
-          var errorStr = "An error occured before or during compilation";
-          if (err) {
-            response.errors.push(errorStr);
-            res.json(response);
-            return;
-          }
-
-          var pdfTitle = documentId+".pdf"
-          , tempfile = path.join(dirPath, pdfTitle);
-          fs.copy(tempfile, configs.pdfs.path + pdfTitle, function(err){
-            if (err) {
-              response.errors.push(errorStr);
-              res.json(response);
-              return;
-            } else {
-
-              response.infos.push("Successfully compiled '"
-                                  + req.body.documentName
-                                  + "'");
-              // make the compiledDocURI
-              response.compiledDocURI = "/servepdf/" + documentId;
-              // send response back to user
-              res.json(response);
+            // store the logs for the user here
+            var problemAtCompile = false;
+            if (err !== null) {
+                if (err.signal) {
+                    console.log("pdflatex process killed with signal " + err.signal);
+                    problemAtCompile = "pdflatex timed out";
+                }else{
+                    if (timeoutVar !== null) {
+                        clearTimeout(timeoutVar);
+                    }
+                }
+                if(err.code){
+                    console.log("pdflatex process exited with error code " + err.code);
+                    problemAtCompile = "pdflatex errored out";
+                }
+            }else{
+                if (timeoutVar !== null) {
+                    clearTimeout(timeoutVar);
+                }
             }
-          });
-        });
-      };
-      if (err) {
-        response.errors.push("An error occured when creating the compilation folder");
-        res.json(response);
-        return;
-    }else{
-        fs.writeFile(inputPath, docText, function(err) {
-            if (err) {
-              response.errors.push("An error occured even before compiling");
-              res.json(response);
-              return;
-            }
-            process.chdir(dirPath);
 
-            var copyPackages = ["cp -R"
-                                , configs.includes.path
-                                , dirPath + "/"].join(" ");
-
-            exec(copyPackages, function(err) {
+            fs.readFile(path.join(dirPath, documentId+".log"), function(err, data){
               if (err) {
-                response.errors.push("Error copying additional "
-                                     + "packages/images to use during compilation");
+                response.errors.push("Error while trying to read logs.");
                 res.json(response);
                 return;
               }
 
-              // compile the document (or at least try)
-              exec("TEXINPUTS=.:"+path.join(dirPath,"texpackages")+"/:$TEXINPUTS pdflatex -interaction=nonstopmode "+ inputPath +" > /dev/null 2>&1"
-                   , afterCompile);
+              response.logs = (data ? data.toString() : "");
+
+              var errorStr = "An error occured before or during compilation";
+              if (err) {
+                response.errors.push(errorStr);
+                res.json(response);
+                return;
+              }
+
+              var pdfTitle = documentId+".pdf"
+              , tempfile = path.join(dirPath, pdfTitle);
+              fs.copy(tempfile, configs.pdfs.path + pdfTitle, function(err){
+                if (err) {
+                  response.errors.push(errorStr);
+                  res.json(response);
+                  return;
+                } else {
+                    if (problemAtCompile === false) {
+                        response.infos.push("Successfully compiled '"
+                                        + req.body.documentName
+                                        + "'");
+                    }else{
+                        response.infos.push("Successfully fetched old pdf, problem at compilation of '"
+                                        + req.body.documentName
+                                        + "' ("+problemAtCompile+")");
+                    }
+
+                    // make the compiledDocURI
+                    response.compiledDocURI = "/servepdf/" + documentId;
+                    // send response back to user
+                    res.json(response);
+                }
+              });
             });
-        });
-    }
+        };
+        if (err) {
+            response.errors.push("An error occured when creating the compilation folder");
+            res.json(response);
+            return;
+        }else{
+            fs.writeFile(inputPath, docText, function(err) {
+                if (err) {
+                  response.errors.push("An error occured even before compiling");
+                  res.json(response);
+                  return;
+                }
+                process.chdir(dirPath);
+
+                var copyPackages = ["cp -R"
+                                    , configs.includes.path
+                                    , dirPath + "/"].join(" ");
+
+                exec(copyPackages, function(err) {
+                    if (err) {
+                        response.errors.push("Error copying additional "
+                                             + "packages/images to use during compilation");
+                        res.json(response);
+                        return;
+                    }
+
+                    // compile the document (or at least try)
+                    var child = exec("TEXINPUTS=.:"+path.join(dirPath,"texpackages")+"/:$TEXINPUTS pdflatex -interaction=nonstopmode "+ inputPath +" > /dev/null 2>&1"
+                        ,{  timeout: 5000, killSignal: 'SIGKILL'}
+                        ,afterCompile);
+                    console.log("pdflatex pid : "+ child.pid);
+                    var pid = child.pid;
+
+                    psTree(pid, function (err, children) {
+                        timeoutVar = setTimeout(function(){
+                            [pid].concat(
+                                children.map(function (p) {
+                                    return p.PID;
+                                })
+                            ).forEach(function (tpid) {
+                                try {
+                                    process.kill(tpid, 'SIGKILL');
+                                    console.log("pdflatex subprocess("+tpid+") killed with signal SIGKILL");
+                                }
+                                catch (ex) { }
+                            });
+                        }, 7000);
+
+                    });
+
+
+                });
+            });
+        }
 
     };
   };
