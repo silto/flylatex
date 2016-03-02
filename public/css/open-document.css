@@ -1,7 +1,6 @@
 .back-to-documents-listing button {
     margin-bottom: 20px;
 }
-
 .doc-meta-data {
     padding: 10px;
     margin-top: 50px;
@@ -16,9 +15,9 @@
     margin-right: 20px;
 }
 
-.container.second-container {
+/*.container.second-container {
     width: 1200px;
-}
+}*/
 
 .pdf-render {
     background-color: #EEE;
@@ -37,8 +36,16 @@
     margin-top: 10px;
 }
 .compiler-view{
-    width:580px;
+    width:560px;
     margin-left: 4px;
+}
+.raw-view{
+    width:560px;
+    margin-left: 4px;
+}
+#raw_textarea{
+    margin-top: 10px;
+    width:540px;
 }
 /*
 style="border:1px solid black; margin-top:2px;"*/

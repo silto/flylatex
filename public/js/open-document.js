@@ -6,7 +6,7 @@ jQuery.fn.extend({
   },
   slideLeftHide: function() {
     return this.each(function() {
-      $(this).hide('slide', {direction: 'left'}, 1000);
+      $(this).hide('slide', {direction: 'right'}, 1000);
     });
   },
   slideRightHide: function() {
@@ -16,7 +16,7 @@ jQuery.fn.extend({
   },
   slideLeftShow: function() {
     return this.each(function() {
-      $(this).show('slide', {direction: 'left'}, 1000);
+      $(this).show('slide', {direction: 'right'}, 1000);
     });
   }
 });

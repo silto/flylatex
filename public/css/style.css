@@ -34,7 +34,7 @@ div.documents-section {
 #editor {
     position: relative;
     top: 30px;
-    width: 1200px;
+    width: 760px;
     height: 700px;
     margin-bottom: 50px;
 }
@@ -69,7 +69,7 @@ div.request-access-box form button, div.share-access-box form button {
 
 #header {
     height: 30px;
-    width: 1200px;
+    width: 760px;
     background-color: black;
     font-size: 16px;
 }
@@ -77,10 +77,10 @@ div.request-access-box form button, div.share-access-box form button {
 #htext {
     line-height: 30px;
     vertical-align: middle;
-    
+
     padding-left: 10px;
     color: white;
-    font-family: baskerville, palatino, 'palatino linotype', georgia,serif; 
+    font-family: baskerville, palatino, 'palatino linotype', georgia,serif;
 }
 
 

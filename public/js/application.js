@@ -370,10 +370,22 @@ function DocsManager() {
     // hide compiler text
     jButton.text("Hide PDF View")
       .attr("onclick", "docs_manager.hideCompilerView($(this), '" + documentId + "', '" + documentName + "');");
-    $("#editor, #header").css("width", "600px");
-    editor.getSession().setOption("wrap", 60);
-    // show compiler view
-    $('.compiler-view').slideLeftShow();
+
+    if ($('.raw-view').hasClass('hiddendiv')) {
+      $("#editor, #header").css("width", "600px");
+      editor.getSession().setOption("wrap", 60);
+      // show compiler view
+      $('.compiler-view').slideLeftShow().removeClass('hiddendiv');
+
+    }else{
+      this.hideRawView($('#showRawbutton'), documentId, documentName);
+      setTimeout(function(){
+          $("#editor, #header").css("width", "600px");
+          editor.getSession().setOption("wrap", 60);
+          // show compiler view
+          $('.compiler-view').slideLeftShow().removeClass('hiddendiv');
+      }.bind(this),1000);
+    }
     this.compileAndRender(documentId, documentName);
   };
 
@@ -385,12 +397,61 @@ function DocsManager() {
     // show compiler text
     jButton.text("Show PDF View")
       .attr("onclick", "docs_manager.showCompilerView($(this), '" + documentId + "', '" + documentName + "');");
-    $("#editor, #header").css("width", "1200px");
+    $("#editor").css("width", "760px");
+    $("#header").css("width", "760px");
     editor.getSession().setOption("wrap", 80);
     // hide compiler view
-    $('.compiler-view').slideRightHide();
+    $('.compiler-view').slideRightHide().addClass('hiddendiv');
+
   };
 
+  /**
+   * showRawView ->
+   * shrink editor and expand raw text view
+   * @param jButton : jQuery object of button
+   */
+  this.showRawView = function(jButton, documentId, documentName) {
+      jButton.text("Hide Raw View")
+        .attr("onclick", "docs_manager.hideRawView($(this), '" + documentId + "', '" + documentName + "');");
+      if ($('.compiler-view').hasClass('hiddendiv')) {
+          $("#editor, #header").css("width", "600px");
+          editor.getSession().setOption("wrap", 60);
+          // show compiler view
+          $('.raw-view').slideLeftShow().removeClass('hiddendiv');
+
+      }else{
+          this.hideCompilerView($('#showPDFbutton'), documentId, documentName);
+          setTimeout(function(){
+              $("#editor, #header").css("width", "600px");
+              editor.getSession().setOption("wrap", 60);
+              // show compiler view
+              $('.raw-view').slideLeftShow().removeClass('hiddendiv');
+          }.bind(this),1000);
+      }
+      $('#raw_textarea').val(editor.getSession().getValue());
+
+
+  };
+
+  /**
+   * hideCompilerView ->
+   * expand editor and collapse compiler view
+   */
+  this.hideRawView = function(jButton, documentId, documentName) {
+    // show compiler text
+    jButton.text("Show Raw View")
+      .attr("onclick", "docs_manager.showRawView($(this), '" + documentId + "', '" + documentName + "');");
+    $("#editor").css("width", "760px");
+    $("#header").css("width", "760px");
+    editor.getSession().setOption("wrap", 80);
+    // hide compiler view
+    $('.raw-view').slideRightHide().addClass('hiddendiv');
+  };
+
+
+  this.refreshRawView = function(){
+      $('#raw_textarea').val(editor.getSession().getValue());
+  };
   /*
    * this.openDocOnLoad -
    * open the document when you load the page

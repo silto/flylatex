@@ -2,16 +2,19 @@
   <div class="span6">
     <div class="documents-section-errors">
       <!-- put dynamic errors onhere -->
-      
+
       <!-- it should like the errors on the other pages. Be consistent. -->
     </div>
     <div class="back-to-documents-listing">
       <button class="btn btn-primary" onclick="document.location.href='/';">
 	<i class="icon-backward"></i>
-	Back to Documents Listing
+	    Back to Documents Listing
       </button>
-      <button class="btn btn-primary" onclick="docs_manager.showCompilerView($(this), '<%= userDocument.id %>', '<%= userDocument.name %>');">
-	Show PDF View
+      <button id="showPDFbutton" class="btn btn-primary" onclick="docs_manager.showCompilerView($(this), '<%= userDocument.id %>', '<%= userDocument.name %>');">
+	    Show PDF View
+      </button>
+      <button id="showRawbutton" class="btn btn-primary" onclick="docs_manager.showRawView($(this), '<%= userDocument.id %>', '<%= userDocument.name %>');">
+        Show Raw View
       </button>
     </div>
     <div id="header">
@@ -21,7 +24,7 @@
 	<b><a class="save-document-link" href="javascript:void(0);" onclick="docs_manager.saveDoc('<%= userDocument.id %>', '<%= userDocument.name %>');">Save</a></b>
 	<small id="last-saved-time-parent" style="display:none;" class="pull-right">
 	  Last Saved <span id="last-saved-time"></span>
-	</small>  
+	</small>
       </div>
     </div>
     <div id="doc-area">
@@ -29,7 +32,7 @@
       </div>
     </div>
   </div>
-  <div class="compiler-view span6" style="display:none;float:right;">
+  <div class="compiler-view span6 hiddendiv" style="display:none;float:right;">
     <!-- button to compile and display pdf document -->
     <button class="btn btn-primary" onclick="docs_manager.compileAndRender('<%= userDocument.id %>', '<%= userDocument.name %>');">
       <i class="icon-film"></i>
@@ -55,7 +58,7 @@
 	View Logs
       </a>
       <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
-      <span>Scale: <input onkeyup="docs_manager.changeScale($(this).val());" class="input-mini" type="text" placeholder="Scale" value="1"></span
+      <span>Scale: <input onkeyup="docs_manager.changeScale($(this).val());" class="input-mini" type="text" placeholder="Scale" value="1"></span>
       <div>
 	<div id="pdf-canvas">
 	<canvas id="the-canvas">
@@ -65,5 +68,21 @@
       </div>
     </div>
   </div>
+  <div class="raw-view span6 hiddendiv" style="display:none;float:right;">
+    <!-- button to compile and display pdf document  -->
+    <button class="btn btn-primary" onclick="docs_manager.refreshRawView();">
+      <i class="icon-refresh"></i>
+      Refresh
+    </button>
+    <!--
+    <button class="btn btn-primary pull-right" onclick="docs_manager.CopyAllDoc('<%= userDocument.id %>', '<%= userDocument.name %>');">
+      <i class="icon-copy"></i>
+      Copy All
+    </button>
+    -->
+      <div id="raw-div">
+          <textarea class="form-control" id="raw_textarea" name="raw-text" rows="40" col="80" placeholder="Loading Raw Document"></textarea>
+      </div>
+    </div>
+  </div>
 </div>
-
